@@ -1,0 +1,12 @@
+﻿@model IEnumerable<dynamic>
+
+@foreach (var item in Model)
+{
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			<h4 class="panel-title">
+				<a asp-controller="Product" asp-action="GetByCate" asp-route-CateName="@item.Name">@item.Name <span class="pull-right">(@item.ProductCount)</span></a>
+			</h4>
+		</div>
+	</div>
+}

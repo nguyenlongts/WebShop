@@ -1,0 +1,163 @@
+﻿@model WebShop.Areas.Customer.ViewModels.CartVM
+<section id="cart_items">
+	<div class="container">
+		<div class="breadcrumbs">
+			<ol class="breadcrumb">
+				<li><a href="#">Home</a></li>
+				<li class="active">Check out</li>
+			</ol>
+		</div><!--/breadcrums-->
+		<div class="shopper-informations">
+			<div class="row">
+				<div class="col-sm-3">
+					<div class="shopper-info">
+						<p>User Information</p>
+						<form>
+							<input type="text" placeholder="Display Name">
+							<input type="text" placeholder="User Name">
+						</form>
+					</div>
+				</div>
+				<div class="col-sm-5">
+					
+						<p>Delivery To</p>
+						<div class="form-one">
+							<form>
+								<input type="text" placeholder="Email*">
+								<input type="text" placeholder="Title">
+								<input type="text" placeholder="First Name *">
+								<input type="text" placeholder="Middle Name">
+								<input type="text" placeholder="Last Name *">
+								<input type="text" placeholder="Address *">
+								<input type="text" placeholder="Phone *">
+								<input type="text" placeholder="Mobile Phone">
+								<input type="text" placeholder="Fax">
+							</form>
+						</div>
+				
+				</div>
+				<div class="col-sm-4">
+					<div class="order-message">
+						<p>Shipping Order</p>
+						<textarea name="message" placeholder="Notes about your order, Special Notes for Delivery" rows="16"></textarea>
+						<label><input type="checkbox"> Shipping to bill address</label>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="review-payment">
+			<h2>Review & Payment</h2>
+			<div class="table-responsive cart_info">
+				<table class="table table-condensed">
+					<thead>
+						<tr class="cart_menu">
+							<td class="image">Item</td>
+							<td class="description"></td>
+							<td class="price">Price</td>
+							<td class="quantity text-center">Quantity</td>
+							<td></td>
+						</tr>
+					</thead>
+					<tbody>
+						@foreach (var item in Model.CartItems)
+						{
+							<tr>
+								<td class="cart_product">
+									<a href="#"><img src="~/images/product/@item.ImageUrl" style="width: 100px; height: auto;" alt=""></a>
+								</td>
+								<td class="cart_description">
+									<h4><a href="#">@item.ProductName</a></h4>
+									<p>Product ID: @item.ProductId</p>
+								</td>
+								<td class="cart_price">
+									<p>$ @item.Price</p>
+								</td>
+								<td class="cart_quantity text-center align-middle">
+									<div class="cart_quantity">
+										<span class="cart_quantity_display" style="font-size:15px" data-price="@item.Price">@item.Quantity</span>
+									</div>
+								</td>
+
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<section id="do_action">
+			<div class="container">
+				<div class="row">
+					<div class="col-6">
+						<div class="total_area">
+							<ul>
+								<li>Cart Sub Total <span id="cart-subtotal">@Model.Total</span></li>
+								<li>Eco Tax <span id="eco-tax">$2</span></li>
+								<li>Shipping Cost <span>Free</span></li>
+								<li>Total <span id="grand-total">@Model.Total</span></li>
+							</ul>
+
+						</div>
+					</div>
+					<div class="col-6">
+						<div class="payment_area">
+							<h2>Payment Method</h2>
+							<form>
+								<div class="form-group">
+									<label for="payment-method">Select Payment Method:</label>
+									<select class="form-control" id="payment-method" onchange="showPaymentInputs()">
+										<option value="">Select Payment Method</option>
+										<option value="credit-card">Credit Card</option>
+										<option value="paypal">PayPal</option>
+										<option value="bank-transfer">Bank Transfer</option>
+									</select>
+								</div>
+								<div id="credit-card-inputs" class="payment-inputs" style="display: none;">
+									<div class="form-group">
+										<label for="card-number">Card Number:</label>
+										<input type="text" class="form-control" id="card-number" placeholder="Enter card number">
+									</div>
+									<div class="form-group">
+										<label for="expiration-date">Expiration Date:</label>
+										<input type="text" class="form-control" id="expiration-date" placeholder="MM/YY">
+									</div>
+									<div class="form-group">
+										<label for="cvv">CVV:</label>
+										<input type="text" class="form-control" id="cvv" placeholder="Enter CVV">
+									</div>
+								</div>
+								<div id="paypal-inputs" class="payment-inputs" style="display: none;">
+									<p>Please log in to your PayPal account to complete the payment.</p>
+								</div>
+								<div id="bank-transfer-inputs" class="payment-inputs" style="display: none;">
+									<p>Please provide your bank account details to complete the payment.</p>
+								</div>
+								<a asp-area="Customer" asp-controller="Order" asp-action="Create" class="btn btn-primary">
+									Submit Payment
+								</a>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+
+								<script>
+			function showPaymentInputs() {
+				const paymentMethod = document.getElementById('payment-method').value;
+				const creditCardInputs = document.getElementById('credit-card-inputs');
+				const paypalInputs = document.getElementById('paypal-inputs');
+				const bankTransferInputs = document.getElementById('bank-transfer-inputs');
+
+				creditCardInputs.style.display = 'none';
+				paypalInputs.style.display = 'none';
+				bankTransferInputs.style.display = 'none';
+
+				if (paymentMethod === 'credit-card') {
+					creditCardInputs.style.display = 'block';
+				} else if (paymentMethod === 'paypal') {
+					paypalInputs.style.display = 'block';
+				} else if (paymentMethod === 'bank-transfer') {
+					bankTransferInputs.style.display = 'block';
+				}
+			}
+</script>

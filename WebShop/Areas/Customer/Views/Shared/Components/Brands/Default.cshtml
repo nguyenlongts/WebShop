@@ -1,0 +1,6 @@
+﻿@model IEnumerable<dynamic>
+
+@foreach (var item in Model)
+{
+	<li><a asp-controller="Product" asp-action="GetByBrand" asp-route-BrandName="@item.Name">@item.Name  <span class="pull-right">(@item.ProductCount)</span></a></li>
+}

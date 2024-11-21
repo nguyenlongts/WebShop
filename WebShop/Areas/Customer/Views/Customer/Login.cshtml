@@ -1,0 +1,39 @@
+﻿@model LoginVM
+@{
+	var ReturnUrl = ViewData["ReturnUrl"];
+}
+<section id="form">
+	<!--form-->
+	<div class="container">
+		<div class="row">
+			<div class="col-sm-4 col-sm-offset-1">
+				@Html.ValidationSummary(false, "", new { @class = "text-danger" })
+				<div class="login-form">
+					<!--login form-->
+					<h2>Login to your account</h2>
+					<form asp-area="Customer" asp-controller="Customer" asp-action="Login" asp-route-ReturnUrl="@ViewData["ReturnUrl"]" method="post">
+
+						<input asp-for="@Model.UserName" placeholder="username" />
+						<span asp-validation-for="@Model.UserName" class="text-danger"></span>
+						<input asp-for="@Model.Password" placeholder="password" />
+						<span asp-validation-for="@Model.Password" class="text-danger"></span>
+
+						<div class="d-flex align-items-start">
+							<span >
+								<input type="checkbox" class="checkbox me-2">
+								Keep me signed in                      
+							</span>
+							</div>
+
+							<div class="d-flex align-items-end">
+							<a class="m" asp-controller="Customer" asp-area="Customer" asp-action="Register">You don't have account?</a>
+							</div>
+					
+
+						<button type="submit" class="btn btn-default">Login</button>
+					</form>
+				</div><!--/login form-->
+			</div>
+		</div>
+	</div>
+</section><!--/form-->

@@ -1,0 +1,160 @@
+﻿@model WebShop.Areas.Customer.ViewModels.CartVM
+<section id="cart_items">
+	<div class="container">
+		<div class="breadcrumbs">
+			<ol class="breadcrumb">
+				<li><a href="#">Home</a></li>
+				<li class="active">Shopping Cart</li>
+			</ol>
+		</div>
+		<div class="table-responsive cart_info">
+			<table class="table table-condensed">
+				<thead>
+					<tr class="cart_menu">
+						<td class="image">Item</td>
+						<td class="description"></td>
+						<td class="price">Price</td>
+						<td class="quantity">Quantity</td>
+						<td></td>
+					</tr>
+				</thead>
+				<tbody>
+					@foreach (var item in Model.CartItems)
+					{
+						<tr>
+							<td class="cart_product">
+								<a href="#"><img src="~/images/product/@item.ImageUrl" style="width: 100px; height: auto;" alt=""></a>
+							</td>	
+							<td class="cart_description">
+								<h4><a href="#">@item.ProductName</a></h4>
+								<p>Product ID: @item.ProductId</p>
+							</td>
+							<td class="cart_price">
+								<p>$ @item.Price</p>
+							</td>
+							<td class="cart_quantity">
+								<div class="cart_quantity_button">
+									<div class="cart_quantity">
+										<a class="cart_quantity_up" href="#" data-product-id="@item.ProductId"> + </a>
+										<input class="cart_quantity_input" type="text" name="quantity" value="@item.Quantity" data-price="@item.Price" autocomplete="off" size="2" />
+
+										<a class="cart_quantity_down" href="#" data-product-id="@item.ProductId"> - </a>
+									</div>
+
+
+								</div>
+							</td>
+							
+							<td class="cart_delete">
+								<a class="cart_quantity_delete" href="#"><i class="fa fa-times"></i></a>
+							</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+	</div>
+</section> <!--/#cart_items-->
+
+
+<section id="do_action">
+	<div class="container">
+		<div class="heading">
+			<h3>What would you like to do next?</h3>
+			<p>Choose if you have a discount code or reward points you want to use or would like to estimate your delivery cost.</p>
+		</div>
+		<div class="row">
+			<div>
+				<div class="total_area">
+					<ul>
+						<li>Cart Sub Total <span id="cart-subtotal">@Model.Total</span></li>
+						<li>Eco Tax <span id="eco-tax">$2</span></li>
+						<li>Shipping Cost <span>Free</span></li>
+						<li>Total <span id="grand-total">@Model.Total</span></li>
+					</ul>
+					<a class="btn btn-default check_out" asp-controller="Checkout" asp-action="Index">Check Out</a>
+				</div>
+
+
+			</div>
+		</div>
+	</div>
+</section><!--/#do_action-->
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+	$(document).ready(function () {
+		
+		$('.cart_quantity_up').click(function (e) {
+			e.preventDefault(); 
+			var inputField = $(this).siblings('.cart_quantity_input');
+			var currentVal = parseInt(inputField.val());
+
+			
+			if (!isNaN(currentVal)) {
+				inputField.val(currentVal + 1); 
+				updateCartItem($(this).data('product-id'), inputField.val());
+			}
+		});
+
+		
+		$('.cart_quantity_down').click(function (e) {
+			e.preventDefault();
+			var inputField = $(this).siblings('.cart_quantity_input');
+			var currentVal = parseInt(inputField.val());
+
+		
+			if (!isNaN(currentVal) && currentVal > 1) {
+				inputField.val(currentVal - 1); 
+				updateCartItem($(this).data('product-id'), inputField.val());
+			}
+		});
+
+		
+		function updateCartItem(productId, quantity) {
+			$.ajax({
+				url: '@Url.Action("UpdateCartItem", "Cart")', 
+				type: 'POST',
+				data: {
+					productId: productId,
+					quantity: quantity
+				},
+				success: function (response) {
+					if (response.success) {
+					
+						updateCartTotal();
+						console.log("Cart item updated successfully.");
+					} else {
+						alert(response.message);
+					}
+				},
+				error: function (xhr, status, error) {
+					alert("Error updating cart item: " + error);
+				}
+			});
+		}
+
+
+		function updateCartTotal() {
+			let total = 0;
+			$('.cart_quantity_input').each(function () {
+				var inputField = $(this);
+				var quantity = parseInt(inputField.val());
+				var price = parseFloat(inputField.data('price')); 
+				if (!isNaN(quantity) && !isNaN(price)) {
+					total += quantity * price;
+				}
+			});
+
+		
+			var Tax = total*0.005; 
+			var shippingCost = 0; 
+			var grandTotal = total + Tax + shippingCost;
+
+			
+			$('#cart-subtotal').text(total.toFixed(2));
+			$('#eco-tax').text(Tax.toFixed(2)); 
+			$('#grand-total').text(grandTotal.toFixed(2));
+		}
+	});
+</script>

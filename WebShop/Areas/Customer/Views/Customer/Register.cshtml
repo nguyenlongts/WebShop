@@ -1,0 +1,29 @@
+﻿	@model RegisterUser
+	<div class="col-sm-4">
+		<div class="signup-form">
+			<!--sign up form-->
+			<h2>User Signup</h2>
+			<form asp-area="Customer" asp-controller="Customer" asp-action="Register" method="post" >
+			@if (ViewData["ErrorMessage"] != null)
+			{
+				<p class="text-danger">@ViewData["ErrorMessage"]</p>
+			}
+
+			<input type="text" asp-for="FullName" placeholder="Full Name" />
+			@Html.ValidationMessageFor(model => model.FullName, "", new { @class = "text-danger" })
+
+			<!-- Trường UserName -->
+			<input type="text" asp-for="UserName" placeholder="User Name" />
+			@Html.ValidationMessageFor(model => model.UserName, "", new { @class = "text-danger" })
+
+			<!-- Trường Password -->
+			<input type="password" asp-for="Password" placeholder="Password" />
+			@Html.ValidationMessageFor(model => model.Password, "", new { @class = "text-danger" })
+
+			<!-- Trường Email -->
+			<input type="email" asp-for="Email" placeholder="Email Address" />
+			@Html.ValidationMessageFor(model => model.Email, "", new { @class = "text-danger" })
+				<button type="submit" class="btn btn-default">Signup</button>
+			</form>
+		</div><!--/sign up form-->
+	</div>

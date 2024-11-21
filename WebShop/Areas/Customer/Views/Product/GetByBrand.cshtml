@@ -1,0 +1,86 @@
+﻿@model WebShop.Areas.Customer.ViewModels.ProductsByBrandVM
+<section id="advertisement">
+	<div class="container">
+		<img src="images/shop/advertisement.jpg" alt="" />
+	</div>
+</section>
+
+<section>
+	<div class="container">
+		<div class="row">
+			<div class="col-sm-3">
+				@await Html.PartialAsync("_SideBarPartial")
+			</div>
+
+			<div class="col-sm-9 padding-right">
+				<div class="features_items">
+					<!--features_items-->
+					<h2 class="title text-center">Features Items</h2>
+					@foreach (Product product in Model.Products)
+					{
+						<div class="col-sm-4" style="height:380px; width:280px">
+							<div class="product-image-wrapper">
+								<div class="single-products">
+									<div class="productinfo text-center">
+										<img src="~/images/product/@product.image" alt="images/product/@product.image" />
+										<h2>$@product.Price</h2>
+										<a asp-controller="Product" asp-action="Detail" asp-route-Name="@product.Name">@product.Name</a>
+										<br />
+										<a asp-controller="Cart" asp-action="AddToCart" asp-route-id="@product.Id" class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i>Add to cart</a>
+									</div>
+								</div>
+								<div class="choose">
+									<ul class="nav nav-pills nav-justified">
+										<li><a href=""><i class="fa fa-plus-square"></i>Add to wishlist</a></li>
+										<li><a href=""><i class="fa fa-plus-square"></i>Add to compare</a></li>
+									</ul>
+								</div>
+							</div>
+						</div>
+					}
+				</div><!--features_items-->
+				<div class="text-center">
+					<ul class="pagination">
+						@for (int i = 1; i <= Model.TotalPages; i++)
+						{
+							<li class="@(Model.CurrentPage == i ? "active" : "")">
+								<a asp-route-BrandName="@Model.BrandName" asp-route-pageNumber="@i">@i</a>
+							</li>
+						}
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+	</div>
+</section>
+
+
+
+<style>
+	.pagination {
+		display: inline-flex;
+		margin: 20px 0;
+	}
+
+		.pagination li {
+			margin: 0 2px;
+		}
+
+			.pagination li a {
+				padding: 8px 16px;
+				text-decoration: none;
+				border: 1px solid #ddd;
+				color: #333;
+			}
+
+			.pagination li.active a {
+				background-color: #FE980F;
+				color: white;
+				border-color: #FE980F;
+			}
+
+			.pagination li a:hover:not(.active) {
+				background-color: #ddd;
+			}
+</style>
