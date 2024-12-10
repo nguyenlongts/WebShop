@@ -1893,9 +1893,9 @@ h2.title {
 }
 
 
-.form-two .form-one {
+.form-two, .form-one {
   float: left;
-  width: 48%;
+  width: 47%
 }
 
 

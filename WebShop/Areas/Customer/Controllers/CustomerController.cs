@@ -131,7 +131,7 @@ namespace WebShop.Areas.Customer.Controllers
             return RedirectToAction("Index", "Home");
         }
 
-        
+        [Route("Logout")]
 		public async Task<IActionResult> Logout()
 		{
 			await HttpContext.SignOutAsync("CustomerCookie");

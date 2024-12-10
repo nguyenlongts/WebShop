@@ -25,32 +25,7 @@ namespace WebShop.Data
 		public DbSet<OrderDetail> OrderDetails { get; set; }
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
-			base.OnModelCreating(modelBuilder);
-
-			modelBuilder.Entity<Category>().HasData(
-				new Category { Id = 1, Name = "Sound", Slug = "sound", Status = 1 },
-				new Category { Id = 2, Name = "Mouse", Slug = "mouse", Status = 1 },
-				new Category { Id = 3, Name = "Laptop", Slug = "laptop", Status = 1 }
-			);
-			modelBuilder.Entity<Brand>().HasData(
-				new Brand { Id = 1, Name = "Dell", Slug = "dell", Status = 1 },
-				new Brand { Id = 2, Name = "Apple", Slug = "apple", Status = 1 }
-				);
-
 			
-			modelBuilder.Entity<Product>().HasData(
-				new Product
-				{
-					Id = 1,
-					Name = "Macbook",
-					Price = 1000,
-					CategoryId = 3,
-					Slug = "macbook",
-					Description = "M1",
-					BrandId = 2,
-					image = "1.jpg"
-				}
-			);
 
 			modelBuilder.Entity<Cart>()
 	   .HasOne(c => c.User)

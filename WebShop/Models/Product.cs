@@ -11,7 +11,7 @@ namespace WebShop.Models
 		[Required]
 		public string Name { get; set; }
 
-        public string Slug { get; set; } = string.Empty;
+
         public string Description { get; set; }= string.Empty;
 		
 		public double Price { get; set; }
@@ -29,5 +29,6 @@ namespace WebShop.Models
 
 		public bool IsFeature {  get; set; }
 
+		public DateTime DateCreate { get; set; } = DateTime.Now;
     }
 }

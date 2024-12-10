@@ -9,8 +9,6 @@ namespace WebShop.Models
         [Required]
         public  string Name  { get; set; }
 
-        [Required]
-        public string Slug { get; set; }
 
         public int Status { get; set; }
     }

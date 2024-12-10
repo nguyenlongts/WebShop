@@ -19,10 +19,35 @@ namespace WebShop.Areas.Admin.Controllers
 		}
 		[Route("/Admin/Products")]
 		[HttpGet]
-		public IActionResult Index()
+		public IActionResult Index(string keyword,int page=1)
 		{
-			IEnumerable<Product> products = _context.Products.ToList();
-			return View(products);
+            int pageSize = 10;
+            var query = _context.Products.AsQueryable();
+
+            if (!string.IsNullOrEmpty(keyword))
+            {
+                query = query.Where(p =>
+                    p.Name.Contains(keyword) ||
+                    p.Description.Contains(keyword)
+                    
+                );
+            }
+            query = query.OrderByDescending(p => p.DateCreate);
+            int totalProducts = query.Count();
+            int totalPages = (int)Math.Ceiling((double)totalProducts / pageSize);
+            var products = query
+               .OrderBy(p => p.Id)
+               .Skip((page - 1) * pageSize)
+               .Take(pageSize)
+               .ToList();
+
+            ViewData["Keyword"] = keyword;
+            ViewData["CurrentPage"] = page;
+            ViewData["TotalPages"] = totalPages;
+            ViewData["TotalProducts"] = totalProducts;
+            ViewData["HasPreviousPage"] = page > 1;
+            ViewData["HasNextPage"] = page < totalPages;
+            return View(products);
 		}
 		[HttpGet]
 		public IActionResult Create()
@@ -74,8 +99,6 @@ namespace WebShop.Areas.Admin.Controllers
 			var product = new Product()
 			{
 				Name = obj.Product.Name,
-
-				Slug = obj.Product.Slug,
 				Description = obj.Product.Description,
 				Price = obj.Product.Price,
 				CategoryId = obj.Product.CategoryId,
@@ -104,7 +127,14 @@ namespace WebShop.Areas.Admin.Controllers
 			var product = _context.Products.FirstOrDefault(p => p.Id == id);
 			_context.Remove(product);
 			_context.SaveChanges();
-			return RedirectToAction("Index");
+			return RedirectToAction("Index");	
+		}
+
+		[HttpGet]
+		public IActionResult Edit(int id)
+		{
+			var product = _context.Products.FirstOrDefault(p => p.Id == id);
+			return View(id);
 		}
 	}
 }
