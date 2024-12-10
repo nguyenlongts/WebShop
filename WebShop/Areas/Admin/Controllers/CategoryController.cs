@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Drawing.Printing;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using WebShop.Areas.Admin.ViewModels;
 using WebShop.Data;
 using WebShop.Models;
 
@@ -14,11 +16,29 @@ namespace WebShop.Areas.Admin.Controllers
 		{
 			_context = context;
 		}
-		public IActionResult Index()
+		public IActionResult Index(int page = 1, int pageSize = 10)
 		{
-			IEnumerable<Category> categories = _context.Categories.ToList();
-			return View(categories);
-		}
+            int totalCategories = _context.Categories.Count();
+
+            // Implement pagination using Skip and Take
+            IEnumerable<Category> categories = _context.Categories
+                .OrderBy(c => c.Id) // Ensure consistent ordering
+            .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            // Create a view model to pass pagination information
+            var viewModel = new CategoryIndexViewModel
+            {
+                Categories = categories,
+                CurrentPage = page,
+                TotalPages = (int)Math.Ceiling((double)totalCategories / pageSize),
+                PageSize = pageSize,
+                TotalCategories = totalCategories
+            };
+
+            return View(viewModel);
+        }
 
         public IActionResult Create()
         {
