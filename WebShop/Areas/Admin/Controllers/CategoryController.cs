@@ -20,21 +20,21 @@ namespace WebShop.Areas.Admin.Controllers
 		{
             int totalCategories = _context.Categories.Count();
 
-            // Implement pagination using Skip and Take
+            
             IEnumerable<Category> categories = _context.Categories
-                .OrderBy(c => c.Id) // Ensure consistent ordering
-            .Skip((page - 1) * pageSize)
+                .OrderBy(c => c.Id) 
+                .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToList();
 
             // Create a view model to pass pagination information
-            var viewModel = new CategoryIndexViewModel
+            var viewModel = new IndexViewModel<Category>
             {
-                Categories = categories,
+                Items = categories,
                 CurrentPage = page,
                 TotalPages = (int)Math.Ceiling((double)totalCategories / pageSize),
                 PageSize = pageSize,
-                TotalCategories = totalCategories
+                TotalItems = totalCategories
             };
 
             return View(viewModel);

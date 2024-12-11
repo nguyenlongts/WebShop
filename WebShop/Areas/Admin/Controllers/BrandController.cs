@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using WebShop.Data;
 using Microsoft.AspNetCore.Authorization;
+using System.Drawing.Printing;
+using WebShop.Areas.Admin.ViewModels;
 
 
 namespace WebShop.Areas.Admin.Controllers
@@ -15,10 +17,24 @@ namespace WebShop.Areas.Admin.Controllers
         {
             _context = context;
         }
-        public IActionResult Index()
+		public IActionResult Index(int page = 1, int PageSize = 10)
 		{
-			IEnumerable<Brand> brands = _context.Brands.ToList() ;
-			return View(brands);
+			int totalBrands = _context.Brands.Count();
+			IEnumerable<Brand> brands = _context.Brands
+					.OrderBy(c => c.Id)
+				   .Skip((page - 1) * PageSize)
+				   .Take(PageSize)
+				   .ToList();
+        var viewModel = new IndexViewModel<Brand>
+        {
+            Items = brands,
+            CurrentPage = page,
+            TotalPages = (int)Math.Ceiling((double)totalBrands / PageSize),
+            PageSize = PageSize,
+            TotalItems = totalBrands
+        };
+
+            return View(viewModel);
 		}
 		
 		

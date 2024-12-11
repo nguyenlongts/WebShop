@@ -4,6 +4,9 @@ using WebShop.Data;
 using WebShop.Areas.Admin.Models;
 using WebShop.Models;
 using Microsoft.AspNetCore.Authorization;
+using WebShop.Areas.Admin.ViewModels;
+using System.Drawing.Printing;
+using Microsoft.EntityFrameworkCore;
 
 namespace WebShop.Areas.Admin.Controllers
 {
@@ -19,35 +22,37 @@ namespace WebShop.Areas.Admin.Controllers
 		}
 		[Route("/Admin/Products")]
 		[HttpGet]
-		public IActionResult Index(string keyword,int page=1)
+		public IActionResult Index(string keyword,int page=1, int PageSize = 10)
 		{
-            int pageSize = 10;
-            var query = _context.Products.AsQueryable();
+            ViewData["CurrentFilter"] = keyword;
+            var query = _context.Products.AsNoTracking().AsQueryable();
+
 
             if (!string.IsNullOrEmpty(keyword))
             {
                 query = query.Where(p =>
-                    p.Name.Contains(keyword) ||
-                    p.Description.Contains(keyword)
-                    
+                    p.Name.ToLower().Contains(keyword.ToLower()) ||
+                    p.Description.ToLower().Contains(keyword.ToLower())
                 );
-            }
+            }	
             query = query.OrderByDescending(p => p.DateCreate);
             int totalProducts = query.Count();
-            int totalPages = (int)Math.Ceiling((double)totalProducts / pageSize);
+            int totalPages = (int)Math.Ceiling((double)totalProducts / PageSize);
             var products = query
-               .OrderBy(p => p.Id)
-               .Skip((page - 1) * pageSize)
-               .Take(pageSize)
+               .Skip((page - 1) * PageSize)
+               .Take(PageSize)
                .ToList();
 
-            ViewData["Keyword"] = keyword;
-            ViewData["CurrentPage"] = page;
-            ViewData["TotalPages"] = totalPages;
-            ViewData["TotalProducts"] = totalProducts;
-            ViewData["HasPreviousPage"] = page > 1;
-            ViewData["HasNextPage"] = page < totalPages;
-            return View(products);
+			var viewmodel = new IndexViewModel<Product>
+			{
+				Items = products,
+				CurrentPage = page,
+				TotalPages = totalPages,
+				PageSize = PageSize,
+				TotalItems = totalProducts
+			};
+
+            return View(viewmodel);
 		}
 		[HttpGet]
 		public IActionResult Create()

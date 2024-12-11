@@ -1,163 +1,217 @@
-﻿@model IEnumerable<WebShop.Models.Product>
-@{
-    // Safely convert ViewData values with null coalescing and explicit casting
-    var currentPage = ViewData["CurrentPage"] != null ? Convert.ToInt32(ViewData["CurrentPage"]) : 1;
-    var totalPages = ViewData["TotalPages"] != null ? Convert.ToInt32(ViewData["TotalPages"]) : 1;
-    var hasPreviousPage = ViewData["HasPreviousPage"] != null ? Convert.ToBoolean(ViewData["HasPreviousPage"]) : false;
-    var hasNextPage = ViewData["HasNextPage"] != null ? Convert.ToBoolean(ViewData["HasNextPage"]) : false;
-}
+﻿@model WebShop.Areas.Admin.ViewModels.IndexViewModel<Product>
+
 
 <div class="card-header bg-secondary bg-gradient ml-0 py-3">
-    <div class="row">
-        <div class="col-12 text-center">
-            <h2 class="text-white py-2">List Products</h2>
-        </div>
-    </div>
+	<div class="row">
+		<div class="col-12 text-center">
+			<h2 class="text-white py-2">List Products</h2>
+		</div>
+	</div>
 </div>
 <div class="card-body">
-    <div class="row pb-3">
-        <div class="row pb-3">
-            <div class="col-6">
-                <form asp-controller="Product" asp-action="Index" method="get" class="d-flex">
-                    <input type="text" name="keyword" class="form-control me-2 search-input" placeholder="Search products..." value="@ViewData["CurrentFilter"]" />
-                    <button type="submit" class="btn btn-search">
-                        <i class="bi bi-search">Find</i>
-                    </button>
-                </form>
-            </div>
-            <div class="col-6 text-end">
-                <a asp-action="Create" asp-controller="Product" class="btn btn-create">
-                    <i class="bi bi-plus-circle"></i> Create New Product
-                </a>
-            </div>
-        </div>
+	<div class="row pb-3">
+		<div class="row pb-3">
+			<div class="col-6">
+				<form asp-controller="Product" asp-action="Index" method="get" class="d-flex">
+					<input type="text" name="keyword" class="form-control me-2 search-input" placeholder="Search products..." value="@ViewData["CurrentFilter"]" />
+					<button type="submit" class="btn btn-search">
+						<i class="bi bi-search">Find</i>
+					</button>
+				</form>
+			</div>
+			<div class="col-6 text-end">
+				<a asp-action="Create" asp-controller="Product" class="btn btn-create">
+					<i class="bi bi-plus-circle"></i> Create New Product
+				</a>
+			</div>
+		</div>
 
-    </div>
+	</div>
 </div>
-<table class="table">
-    <thead>
-        <tr>
-            <th scope="col">Id</th>
-            <th scope="col">Name</th>
-         
-            <th scope="col">Description</th>
-            <th scope="col">Price</th>
-            <th scope="col">Status</th>
-            <th style="width: 250px;">Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (Product item in Model)
-        {
-            <tr>
-                <th scope="row">@item.Id</th>
-                <td>@item.Name</td>
-                <td>@item.Description</td>
-                <td>@item.Price</td>
-                <td>@item.Status</td>
-                <td>
-                    <div class="btn-group" role="group">
-                        <a asp-controller="Product" asp-action="Edit" asp-route-id="@item.Id"
-                           class="btn btn-primary btn-sm btn-lg">
-                            <i class="bi bi-pencil-square"></i> Edit
-                        </a>
-                        <form asp-controller="Product" asp-action="Delete" asp-route-id="@item.Id"
-                              method="post" class="d-inline">
-                            <button type="submit" class="btn btn-danger btn-sm ms-1 btn-lg"
-                                    onclick="return confirm('Are you sure you want to delete this category?');">
-                                <i class="bi bi-trash-fill"></i> Delete
-                            </button>
-                        </form>
-                    </div>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
-<div class="d-flex justify-content-center">
-    <ul class="pagination">
-        <li class="page-item @(hasPreviousPage ? "" : "disabled")">
-            <a class="page-link"
-               asp-action="Index"
-               asp-route-page="@(currentPage - 1)"
-               aria-disabled="@(!hasPreviousPage)">
-                Previous
-            </a>
-        </li>
+<div class="card shadow mb-4">
+	<div class="card-header py-3">
+		<h6 class="m-0 font-weight-bold text-primary">Bảng danh sách các danh mục</h6>
+	</div>
+	<div class="card-body">
+		<div class="table-responsive">
+			<div id="dataTable_wrapper" class="dataTables_wrapper dt-bootstrap4">
+				<div class="row">
+					<div class="col-sm-12 col-md-6">
+						<div class="dataTables_length" id="dataTable_length">
+							<form method="get" asp-action="Index" class="form-inline">
+								<label class="mr-2">
+									Show
+									<input type="number"
+										   name="pageSize"
+										   value="@Model.PageSize"
+										   min="1"
+										   max="500"
+										   class="form-control form-control-sm ml-1 mr-1"
+										   style="width: 80px;"
+										   onchange="this.form.submit()" />
+									entries
+								</label>
+								<input type="hidden" name="page" value="1" />
+							</form>
+						</div>
+					</div>
+				
+				</div><div class="row">
+					<div class="col-sm-12">
+						<table class="table table-bordered dataTable" id="dataTable" width="100%" cellspacing="0" role="grid" aria-describedby="dataTable_info" style="width: 100%;">
+							<thead>
+								<tr role="row">
+									<th class="sorting sorting_asc" tabindex="0" aria-controls="dataTable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 33%;background-color:black;color:white">Name</th>
+									<th class="sorting" tabindex="0" aria-controls="dataTable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 33%;background-color:black;color:white">Status</th>
+									<th class="sorting" tabindex="0" aria-controls="dataTable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 33%;background-color:black;color:white">Actions</th>
+							</thead>
+							<tbody>
+								@foreach (Product item in Model.Items)
+								{
+									<tr>
+										<td>@item.Name</td>
 
-        @for (int i = 1; i <= totalPages; i++)
-        {
-            <li class="page-item @(i == currentPage ? "active" : "")">
-                <a class="page-link"
-                   asp-action="Index"
-                   asp-route-page="@i">
-                    @i
-                </a>
-            </li>
-        }
+										<td>@item.Status</td>
+										<td>
+											<div class="btn-group" role="group">
+												<a asp-controller="Product" asp-action="Edit" asp-route-id="@item.Id"
+												   class="btn btn-primary btn-sm btn-lg">
+													<i class="bi bi-pencil-square"></i> Edit
+												</a>
+												<form asp-controller="Product" asp-action="Delete" asp-route-id="@item.Id"
+													  method="post" class="d-inline">
+													<button type="submit" class="btn btn-danger btn-sm ms-1 btn-lg"
+															onclick="return confirm('Are you sure you want to delete this category?');">
+														<i class="bi bi-trash-fill"></i> Delete
+													</button>
+												</form>
+											</div>
+										</td>
+									</tr>
+								}
+							</tbody>
+						</table>
+					</div>
+					<div class="row">
 
-        <li class="page-item @(hasNextPage ? "" : "disabled")">
-            <a class="page-link"
-               asp-action="Index"
-               asp-route-page="@(currentPage + 1)"
-               aria-disabled="@(!hasNextPage)">
-                Next
-            </a>
-        </li>
-    </ul>
+						<div class="col-sm-12 col-md-5">
+							<div class="dataTables_info" id="dataTable_info" role="status" aria-live="polite">
+								@if (Model.TotalItems > 0)
+								{
+									<span>Showing @(Model.Items.Count()) of @Model.TotalItems entries</span>
+								}
+								else
+								{
+									<span>No entries found</span>
+								}
+							</div>
+						</div>
+
+
+						<div class="col-sm-12 col-md-7">
+							<div class="dataTables_paginate paging_simple_numbers" id="dataTable_paginate">
+								<ul class="pagination">
+									@{
+										int startPage = Math.Max(1, Model.CurrentPage - 3);
+										int endPage = Math.Min(Model.TotalPages, Model.CurrentPage + 3);
+									}
+
+									<!-- Previous Button -->
+									<li class="paginate_button page-item previous @(Model.CurrentPage == 1 ? "disabled" : "")">
+										<a asp-action="Index"
+										   asp-route-page="@(Model.CurrentPage - 1)"
+										   asp-route-pageSize="@Model.PageSize"
+										   asp-route-keyword="@ViewData["CurrentFilter"]"
+										   class="page-link"
+										   aria-controls="dataTable"
+										   tabindex="0">Previous</a>
+									</li>
+
+									<!-- Page Numbers -->
+									@for (int i = startPage; i <= endPage; i++)
+									{
+										<li class="paginate_button page-item @(i == Model.CurrentPage ? "active" : "")">
+											<a asp-action="Index"
+											   asp-route-page="@i"
+											   asp-route-keyword="@ViewData["CurrentFilter"]"
+											   asp-route-pageSize="@Model.PageSize"
+											   class="page-link"
+											   aria-controls="dataTable"
+											   tabindex="0">@i</a>
+										</li>
+									}
+
+									<!-- Next Button -->
+									<li class="paginate_button page-item next @(Model.CurrentPage == Model.TotalPages ? "disabled" : "")">
+										<a asp-action="Index"
+										   asp-route-page="@(Model.CurrentPage + 1)"
+										   asp-route-pageSize="@Model.PageSize"
+										   asp-route-keyword="@ViewData["CurrentFilter"]"
+										   class="page-link"
+										   aria-controls="dataTable"
+										   tabindex="0">Next</a>
+									</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 </div>
 <style>
-    /* Previous styles remain the same */
-    .pagination .page-link {
-        color: #192E2F;
-    }
+	/* Previous styles remain the same */
+	.pagination .page-link {
+		color: #192E2F;
+	}
 
-    .pagination .page-item.active .page-link {
-        background-color: #192E2F;
-        border-color: #192E2F;
-        color:#fff
-    }
+	.pagination .page-item.active .page-link {
+		background-color: #192E2F;
+		border-color: #192E2F;
+		color: #fff
+	}
 
-    .search-input {
-        border: 2px solid #192E2F;
-        border-radius: 5px;
-        height: 38px;
-    }
+	.search-input {
+		border: 2px solid #192E2F;
+		border-radius: 5px;
+		height: 38px;
+	}
 
-    .btn-search {
-        background-color: #192E2F;
-        color: white;
-        border: 2px solid #192E2F;
-        border-radius: 5px;
-        height: 38px;
-        width: 50px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
+	.btn-search {
+		background-color: #192E2F;
+		color: white;
+		border: 2px solid #192E2F;
+		border-radius: 5px;
+		height: 38px;
+		width: 50px;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
 
-        .btn-search:hover {
-            background-color: #2C4C50;
-            color: white;
-        }
+		.btn-search:hover {
+			background-color: #2C4C50;
+			color: white;
+		}
 
-    .btn-create {
-        margin-top: 0;
-        background-color: #eb8f34;
-        border-color: #eb8f34;
-        color: white;
-        height: 38px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-    }
+	.btn-create {
+		margin-top: 0;
+		background-color: #eb8f34;
+		border-color: #eb8f34;
+		color: white;
+		height: 38px;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+	}
 
-        .btn-create:hover {
-            background-color: #d97e2a;
-            border-color: #d97e2a;
-        }
+		.btn-create:hover {
+			background-color: #d97e2a;
+			border-color: #d97e2a;
+		}
 
-        .btn-create i {
-            margin-right: 5px;
-        }
+		.btn-create i {
+			margin-right: 5px;
+		}
 </style>
