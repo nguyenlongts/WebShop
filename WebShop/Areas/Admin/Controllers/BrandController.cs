@@ -25,7 +25,7 @@ namespace WebShop.Areas.Admin.Controllers
 				   .Skip((page - 1) * PageSize)
 				   .Take(PageSize)
 				   .ToList();
-        var viewModel = new IndexViewModel<Brand>
+        var viewModel = new PaginatedViewModel<Brand>
         {
             Items = brands,
             CurrentPage = page,
