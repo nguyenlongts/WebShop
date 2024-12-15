@@ -1,4 +1,4 @@
-﻿@model WebShop.Areas.Admin.ViewModels.IndexViewModel<Brand>
+﻿@model WebShop.Areas.Admin.ViewModels.PaginatedViewModel<Brand>
 <div class="card-header bg-secondary bg-gradient ml-0 py-3">
 	<div class="row">
 		<div class="col-12 text-center">
@@ -8,39 +8,27 @@
 </div>
 <div class="card-body">
 	<div class="row pb-3">
-		<div class="col-6">
-			<!-- Left side content if needed -->
+		<div class="row pb-3">
+			<div class="col-6">
+				<form asp-controller="Brand" asp-action="Index" method="get" class="d-flex">
+					<input type="text" name="keyword" class="form-control me-2 search-input" placeholder="Search brand..." value="@ViewData["CurrentFilter"]" />
+					<button type="submit" class="btn btn-search">
+						<i class="bi bi-search">Find</i>
+					</button>
+				</form>
+			</div>
+			<div class="col-6 text-end">
+				<a asp-action="Create" asp-controller="Brand" class="btn btn-create">
+					<i class="bi bi-plus-circle"></i> Create New Brand
+				</a>
+			</div>
 		</div>
-		<div class="col-6 text-end">
-			<a asp-action="Create" asp-controller="Product" class="btn btn-create">
-				<i class="bi bi-plus-circle"></i> Create New Brand
-			</a>
-		</div>
+
 	</div>
 </div>
 
 
-<style>
-	.btn-primary {
-		width:100px;
-		color: #fff;
-		background-color: #192E2F;
-		border-color: #192E2F;
-	}
 
-	.btn-danger {
-		width:100px;
-		color: #fff;
-		background-color: #CA1929;
-		border-color: #CA1929;
-	}
-
-	.btn-create{
-		margin-top:20px;
-		background-color: #eb8f34;
-		border-color: #eb8f34;
-	}
-</style>
 <div class="card shadow mb-4">
 	<div class="card-header py-3">
 		<h6 class="m-0 font-weight-bold text-primary">Bảng danh sách các danh mục</h6>
@@ -173,3 +161,72 @@
 			</div>
 		</div>
 	</div>
+</div>
+<style>
+	.btn-primary {
+		width: 100px;
+		color: #fff;
+		background-color: #192E2F;
+		border-color: #192E2F;
+	}
+
+	.btn-danger {
+		width: 100px;
+		color: #fff;
+		background-color: #CA1929;
+		border-color: #CA1929;
+	}
+
+	.pagination .page-link {
+		color: #192E2F;
+	}
+
+	.pagination .page-item.active .page-link {
+		background-color: #192E2F;
+		border-color: #192E2F;
+		color: #fff
+	}
+
+	.search-input {
+		border: 2px solid #192E2F;
+		border-radius: 5px;
+		height: 38px;
+	}
+
+	.btn-search {
+		background-color: #192E2F;
+		color: white;
+		border: 2px solid #192E2F;
+		border-radius: 5px;
+		height: 38px;
+		width: 50px;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+
+		.btn-search:hover {
+			background-color: #2C4C50;
+			color: white;
+		}
+
+	.btn-create {
+		margin-top: 0;
+		background-color: #eb8f34;
+		border-color: #eb8f34;
+		color: white;
+		height: 38px;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+		.btn-create:hover {
+			background-color: #d97e2a;
+			border-color: #d97e2a;
+		}
+
+		.btn-create i {
+			margin-right: 5px;
+		}
+</style>

@@ -1,4 +1,4 @@
-﻿@model WebShop.Areas.Admin.ViewModels.IndexViewModel<Category>
+﻿@model WebShop.Areas.Admin.ViewModels.PaginatedViewModel<Category>
 
 <div class="card-header bg-secondary bg-gradient ml-0 py-3">
 	<div class="row">
@@ -9,14 +9,22 @@
 </div>
 <div class="card-body">
 	<div class="row pb-3">
-		<div class="col-6">
-			<!-- Left side content if needed -->
+		<div class="row pb-3">
+			<div class="col-6">
+				<form asp-controller="Category" asp-action="Index" method="get" class="d-flex">
+					<input type="text" name="keyword" class="form-control me-2 search-input" placeholder="Search category..." value="@ViewData["CurrentFilter"]" />
+					<button type="submit" class="btn btn-search">
+						<i class="bi bi-search">Find</i>
+					</button>
+				</form>
+			</div>
+			<div class="col-6 text-end">
+				<a asp-action="Create" asp-controller="Category" class="btn btn-create">
+					<i class="bi bi-plus-circle"></i> Create New Product
+				</a>
+			</div>
 		</div>
-		<div class="col-6 text-end">
-			<a asp-action="Create" asp-controller="Product" class="btn btn-create">
-				<i class="bi bi-plus-circle"></i> Create New Category
-			</a>
-		</div>
+
 	</div>
 </div>
 
@@ -43,141 +51,174 @@
 	}
 </style>
 <div class="card shadow mb-4">
-	<div class="card-header py-3">
-		<h6 class="m-0 font-weight-bold text-primary">Bảng danh sách các danh mục</h6>
-	</div>
 	<div class="card-body">
 		<div class="table-responsive">
-			<div id="dataTable_wrapper" class="dataTables_wrapper dt-bootstrap4">
-				<div class="row">
-					<div class="col-sm-12 col-md-6">
-						<div class="dataTables_length" id="dataTable_length">
-							<form method="get" asp-action="Index" class="form-inline">
-								<label class="mr-2">
-									Show
-									<input type="number"
-										   name="pageSize"
-										   value="@Model.PageSize"
-										   min="1"
-										   max="500"
-										   class="form-control form-control-sm ml-1 mr-1"
-										   style="width: 80px;"
-										   onchange="this.form.submit()" />
-									entries
-								</label>
-								<input type="hidden" name="page" value="1" />
-							</form>
-						</div>
-					</div>
-					<div class="col-sm-12 col-md-6">
-						<div id="dataTable_filter" class="dataTables_filter d-flex justify-content-end">
-							<label>Search:<input type="search" class="form-control form-control-sm" placeholder="" aria-controls="dataTable"></label>
-						</div>
-					</div>
-				</div><div class="row">
-					<div class="col-sm-12">
-						<table class="table table-bordered dataTable" id="dataTable" width="100%" cellspacing="0" role="grid" aria-describedby="dataTable_info" style="width: 100%;">
-							<thead>
-								<tr role="row">
-									<th class="sorting sorting_asc" tabindex="0" aria-controls="dataTable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 33%;background-color:black;color:white">Name</th>
-									<th class="sorting" tabindex="0" aria-controls="dataTable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 33%;background-color:black;color:white">Status</th>
-									<th class="sorting" tabindex="0" aria-controls="dataTable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 33%;background-color:black;color:white">Actions</th>
-							</thead>
-							<tbody>
-								@foreach (Category item in Model.Items)
-								{
-									<tr>
-										<td>@item.Name</td>
-
-										<td>@item.Status</td>
-										<td>
-											<div class="btn-group" role="group">
-												<a asp-controller="Product" asp-action="Edit" asp-route-id="@item.Id"
-												   class="btn btn-primary btn-sm btn-lg">
-													<i class="bi bi-pencil-square"></i> Edit
-												</a>
-												<form asp-controller="Product" asp-action="Delete" asp-route-id="@item.Id"
-													  method="post" class="d-inline">
-													<button type="submit" class="btn btn-danger btn-sm ms-1 btn-lg"
-															onclick="return confirm('Are you sure you want to delete this category?');">
-														<i class="bi bi-trash-fill"></i> Delete
-													</button>
-												</form>
-											</div>
-										</td>
-									</tr>
-								}
-							</tbody>
-						</table>
-					</div>
-					<div class="row">
-						
-						<div class="col-sm-12 col-md-5">
-							<div class="dataTables_info" id="dataTable_info" role="status" aria-live="polite">
-								@if (Model.TotalItems > 0)
-								{
-									<span>Showing @(Model.Items.Count()) of @Model.TotalItems entries</span>
-								}
-								else
-								{
-									<span>No entries found</span>
-								}
-							</div>
-						</div>
-
-						
-						<div class="col-sm-12 col-md-7">
-							<div class="dataTables_paginate paging_simple_numbers" id="dataTable_paginate">
-								<ul class="pagination">
-									@{
-										int startPage = Math.Max(1, Model.CurrentPage - 3);
-										int endPage = Math.Min(Model.TotalPages, Model.CurrentPage + 3);
-									}
-
-									<!-- Previous Button -->
-									<li class="paginate_button page-item previous @(Model.CurrentPage == 1 ? "disabled" : "")">
-										<a asp-action="Index"
-										   asp-route-page="@(Model.CurrentPage - 1)"
-										   asp-route-pageSize="@Model.PageSize"
-										   class="page-link"
-										   aria-controls="dataTable"
-										   tabindex="0">Previous</a>
-									</li>
-
-									<!-- Page Numbers -->
-									@for (int i = startPage; i <= endPage; i++)
-									{
-										<li class="paginate_button page-item @(i == Model.CurrentPage ? "active" : "")">
-											<a asp-action="Index"
-											   asp-route-page="@i"
-											   asp-route-pageSize="@Model.PageSize"
-											   class="page-link"
-											   aria-controls="dataTable"
-											   tabindex="0">@i</a>
-										</li>
-									}
-
-									<!-- Next Button -->
-									<li class="paginate_button page-item next @(Model.CurrentPage == Model.TotalPages ? "disabled" : "")">
-										<a asp-action="Index"
-										   asp-route-page="@(Model.CurrentPage + 1)"
-										   asp-route-pageSize="@Model.PageSize"
-										   class="page-link"
-										   aria-controls="dataTable"
-										   tabindex="0">Next</a>
-									</li>
-								</ul>
-							</div>
-						</div>
-					</div>
-
-					
-					
+			<table class="table table-bordered table-hover">
+				<thead>
+					<tr>
+						<th style="background-color:black;color:white" >Name</th>
+						<th style="background-color:black;color:white">Status</th>
+						<th style="background-color:black;color:white">Actions</th>
+					</tr>
+				</thead>
+				<tbody>
+					@foreach (Category item in Model.Items)
+					{
+						<tr>
+							<td>@item.Name</td>
+							<td>
+								<div class="form-check form-switch">
+									<input class="form-check-input status-toggle"
+										   type="checkbox"
+										   role="switch"
+										   data-id="@item.Id"
+									@(item.Status == 1 ? "checked" : "")
+										   onchange="updateStatus(this)">
+									<label class="form-check-label">
+										@(item.Status == 1 ? "Active" : "Inactive")
+									</label>
+								</div>
+							</td>
 
 
-					
-
-				</div>
-			</div>
+							<td>
+								<div class="btn-group" role="group">
+									<a asp-controller="Category" asp-action="Edit" asp-route-id="@item.Id"
+									   class="btn btn-primary btn-sm btn-lg">
+										<i class="bi bi-pencil-square"></i> Edit
+									</a>
+									<form asp-controller="Category" asp-action="Delete" asp-route-id="@item.Id"
+										  method="post" class="d-inline">
+										<button type="submit" class="btn btn-danger btn-sm ms-1 btn-lg"
+												onclick="return confirm('Are you sure you want to delete this category?');">
+											<i class="bi bi-trash-fill"></i> Delete
+										</button>
+									</form>
+								</div>
+							</td>
+						</tr>
+					}
+				</tbody>
+			</table>
 		</div>
 	</div>
+</div>
+
+<script>
+	function updateStatus(checkbox) {
+		// Lấy ID của category và trạng thái mới
+		var categoryId = $(checkbox).data('id');
+		var newStatus = checkbox.checked ? 1 : 0;
+		var label = $(checkbox).next('label');
+
+		// Gửi yêu cầu AJAX đến server
+		$.ajax({
+			url: '/Admin/Category/UpdateStatus',
+			type: 'POST',
+			data: {
+				id: categoryId,
+				status: newStatus
+			},
+			success: function(response) {
+				if (response.success) {
+					// Cập nhật nhãn trạng thái
+					label.text(newStatus === 1 ? 'Active' : 'Inactive');
+				} else {
+					// Revert checkbox nếu cập nhật thất bại
+					checkbox.checked = !checkbox.checked;
+					alert(response.message || 'Failed to update status');
+				}
+			},
+			error: function() {
+				// Revert checkbox nếu yêu cầu bị lỗi
+				checkbox.checked = !checkbox.checked;
+				alert('Error updating status');
+			}
+		});
+	}
+</script>
+
+<style>
+	.form-check-input.status-toggle {
+		cursor: pointer;
+	}
+
+		
+	.table {
+		table-layout: fixed; /* Đặt kích thước cố định cho bảng */
+		width: 100%; /* Đảm bảo bảng chiếm hết không gian */
+	}
+
+	.btn-primary {
+		width: 100px;
+		color: #fff;
+		background-color: #192E2F;
+		border-color: #192E2F;
+	}
+
+	.btn-danger {
+		width: 100px;
+		color: #fff;
+		background-color: #CA1929;
+		border-color: #CA1929;
+	}
+
+	.pagination .page-link {
+		color: #192E2F;
+	}
+
+	.pagination .page-item.active .page-link {
+		background-color: #192E2F;
+		border-color: #192E2F;
+		color: #fff
+	}
+
+	.search-input {
+		border: 2px solid #192E2F;
+		border-radius: 5px;
+		height: 38px;
+	}
+
+	.btn-search {
+		background-color: #192E2F;
+		color: white;
+		border: 2px solid #192E2F;
+		border-radius: 5px;
+		height: 38px;
+		width: 50px;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+
+		.btn-search:hover {
+			background-color: #2C4C50;
+			color: white;
+		}
+
+	.btn-create {
+		margin-top: 0;
+		background-color: #eb8f34;
+		border-color: #eb8f34;
+		color: white;
+		height: 38px;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+		.btn-create:hover {
+			background-color: #d97e2a;
+			border-color: #d97e2a;
+		}
+
+		.btn-create i {
+			margin-right: 5px;
+		}
+
+	.table-responsive th:nth-child(1),
+	.table-responsive td:nth-child(1) {
+		max-width: 200px; /* Đặt chiều rộng tối đa cho cột Name */
+		word-wrap: break-word; /* Ngắt từ nếu dài quá */
+	}
+</style>

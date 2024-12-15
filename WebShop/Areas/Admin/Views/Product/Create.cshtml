@@ -1,67 +1,114 @@
 ﻿@using WebShop.Areas.Admin.Models
 @model ProductForCreate
-
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Create New Product";
 }
 
-<h1>Create New Product</h1>
+<style>
+    html, body {
+        height: 100%;
+    }
 
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create" enctype="multipart/form-data">
-      
+    .centered-form-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        background-color: #f4f6f9;
+    }
+
+    .form-container {
+        width: 100%;
+        max-width: 600px;
+        padding: 30px;
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+</style>
+
+<div class="centered-form-container">
+    <div class="form-container">
+        <h2 class="text-center mb-4">Thêm Sản Phẩm Mới</h2>
+        <form asp-action="Create" enctype="multipart/form-data" novalidate>
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Product.Name" class="control-label"></label>
-                <input asp-for="Product.Name" class="form-control" />
+
+            <div class="mb-3">
+                <label asp-for="Product.Name" class="form-label">Tên Sản Phẩm</label>
+                <input asp-for="Product.Name" class="form-control" required>
                 <span asp-validation-for="Product.Name" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="Product.Description" class="control-label"></label>
-                <input asp-for="Product.Description" class="form-control" />
+
+            <div class="mb-3">
+                <label asp-for="Product.Description" class="form-label">Mô Tả Sản Phẩm</label>
+                <textarea asp-for="Product.Description" class="form-control" rows="3"></textarea>
                 <span asp-validation-for="Product.Description" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="Product.Price" class="control-label"></label>
-                <input asp-for="Product.Price" class="form-control" />
-                <span asp-validation-for="Product.Price" class="text-danger"></span>
+
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label asp-for="Product.Price" class="form-label">Giá</label>
+                    <div class="input-group">
+                        <span class="input-group-text">₫</span>
+                        <input asp-for="Product.Price" class="form-control" type="number" required min="0">
+                        <span asp-validation-for="Product.Price" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label asp-for="Product.CategoryId" class="form-label">Danh Mục</label>
+                    <select asp-for="Product.CategoryId" asp-items="@Model.CategoryList" class="form-select" required>
+                        <option value="">Chọn Danh Mục</option>
+                    </select>
+                    <span asp-validation-for="Product.CategoryId" class="text-danger"></span>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label asp-for="Product.BrandId" class="form-label">Hãng</label>
+                    <select asp-for="Product.BrandId" asp-items="@Model.BrandList" class="form-select" required>
+                        <option value="">Chọn Hãng</option>
+                    </select>
+                    <span asp-validation-for="Product.BrandId" class="text-danger"></span>
+                </div>
             </div>
-          
-            <div class="form-floating py-2 col-12 mt-2 border-1">
-                <select asp-for="Product.CategoryId" asp-items="@Model.CategoryList" class=" form-select border-0 shadow">
-                    <option disabled selected>--Select Category--</option>
-                </select>
-                <label  asp-items="Product.CategoryList" class="ms-2">Category</label>
-                <span asp-validation-for="Product.CategoryId" class="text-danger"></span>
-            </div>
-            <div class="form-floating py-2 col-12 mt-2 border-1">
-                <select asp-for="Product.BrandId" asp-items="@Model.BrandList" class=" form-select border-0 shadow">
-                    <option disabled selected>--Select Brand--</option>
-                </select>
-                <label asp-items="Product.BrandList" class="ms-2">Brand</label>
-                <span asp-validation-for="Product.BrandId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Image" class="control-label"></label>
-                <input asp-for="Image" type="file" class="form-control" />
+
+            <div class="mb-3">
+                <label asp-for="Image" class="form-label">Hình Ảnh Sản Phẩm</label>
+                <input asp-for="Image" type="file" class="form-control" accept="image/*">
                 <span asp-validation-for="Image" class="text-danger"></span>
             </div>
 
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+            <div class="mb-3 form-check">
+                <input asp-for="IsFeatured" class="form-check-input" id="featuredProduct">
+                <label asp-for="IsFeatured" class="form-check-label" for="featuredProduct">Sản Phẩm Nổi Bật</label>
+                <span asp-validation-for="IsFeatured" class="text-danger"></span>
+            </div>
+
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-primary">Tạo Sản Phẩm</button>
             </div>
         </form>
     </div>
-</div>
-
-<div>
-    <a asp-action="Index">Back to List</a>
 </div>
 
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+    <script>
+        // Optional: Custom form validation
+        (function() {
+            'use strict';
+            window.addEventListener('load', function() {
+                var forms = document.getElementsByClassName('needs-validation');
+                var validation = Array.prototype.filter.call(forms, function(form) {
+                    form.addEventListener('submit', function(event) {
+                        if (form.checkValidity() === false) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        }
+                        form.classList.add('was-validated');
+                    }, false);
+                });
+            }, false);
+        })();
+    </script>
 }

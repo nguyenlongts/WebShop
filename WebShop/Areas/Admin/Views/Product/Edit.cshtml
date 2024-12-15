@@ -1,5 +1,76 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@using WebShop.Areas.Admin.Models
+@model ProductForCreate
 @{
+    ViewData["Title"] = "Edit Product";
+}
+
+<div class="centered-form-container">
+    <div class="form-container">
+        <h2 class="text-center mb-4">Chỉnh Sửa Sản Phẩm</h2>
+        <form asp-action="Edit" enctype="multipart/form-data" method="post" novalidate>
+            @* Hidden field để gửi ProductId *@
+            <input type="hidden" asp-for="Product.Id" />
+
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="mb-3">
+                <label asp-for="Product.Name" class="form-label">Tên Sản Phẩm</label>
+                <input asp-for="Product.Name" class="form-control" required>
+                <span asp-validation-for="Product.Name" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Product.Description" class="form-label">Mô Tả Sản Phẩm</label>
+                <textarea asp-for="Product.Description" class="form-control" rows="3"></textarea>
+                <span asp-validation-for="Product.Description" class="text-danger"></span>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label asp-for="Product.Price" class="form-label">Giá</label>
+                    <div class="input-group">
+                        <span class="input-group-text">₫</span>
+                        <input asp-for="Product.Price" class="form-control" type="number" required min="0">
+                        <span asp-validation-for="Product.Price" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label asp-for="Product.CategoryId" class="form-label">Danh Mục</label>
+                    <select asp-for="Product.CategoryId" asp-items="@Model.CategoryList" class="form-select" required>
+                        <option value="">Chọn Danh Mục</option>
+                    </select>
+                    <span asp-validation-for="Product.CategoryId" class="text-danger"></span>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label asp-for="Product.BrandId" class="form-label">Hãng</label>
+                    <select asp-for="Product.BrandId" asp-items="@Model.BrandList" class="form-select" required>
+                        <option value="">Chọn Hãng</option>
+                    </select>
+                    <span asp-validation-for="Product.BrandId" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Image" class="form-label">Hình Ảnh Mới (Nếu cần thay đổi)</label>
+                <input asp-for="Image" type="file" class="form-control" accept="image/*">
+                <span asp-validation-for="Image" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3 form-check">
+                <input asp-for="IsFeatured" class="form-check-input" id="featuredProduct">
+                <label asp-for="IsFeatured" class="form-check-label" for="featuredProduct">Sản Phẩm Nổi Bật</label>
+                <span asp-validation-for="IsFeatured" class="text-danger"></span>
+            </div>
+
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-primary">Cập Nhật Sản Phẩm</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }
