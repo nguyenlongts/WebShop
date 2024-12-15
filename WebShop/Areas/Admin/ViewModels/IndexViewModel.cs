@@ -1,6 +1,6 @@
 ﻿namespace WebShop.Areas.Admin.ViewModels
 {
-    public class IndexViewModel<T>
+    public class PaginatedViewModel<T>
     {
         public IEnumerable<T> Items { get; set; }
         public int CurrentPage { get; set; }
