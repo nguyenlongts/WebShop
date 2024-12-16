@@ -1,5 +1,6 @@
 ﻿@model WebShop.Areas.Admin.ViewModels.PaginatedViewModel<Category>
 
+<div id="alert-div" class="alert alert-info" style="display:none;"></div>
 <div class="card-header bg-secondary bg-gradient ml-0 py-3">
 	<div class="row">
 		<div class="col-12 text-center">
@@ -51,6 +52,9 @@
 	}
 </style>
 <div class="card shadow mb-4">
+	<div class="card-header py-3">
+		<h6 class="m-0 font-weight-bold text-primary">Bảng danh sách các danh mục</h6>
+	</div>
 	<div class="card-body">
 		<div class="table-responsive">
 			<table class="table table-bordered table-hover">
@@ -101,17 +105,78 @@
 				</tbody>
 			</table>
 		</div>
+		<div class="row">
+
+			<div class="col-sm-12 col-md-5">
+				<div class="dataTables_info" id="dataTable_info" role="status" aria-live="polite">
+					@if (Model.TotalItems > 0)
+					{
+						<span>Showing @(Model.Items.Count()) of @Model.TotalItems entries</span>
+					}
+					else
+					{
+						<span>No entries found</span>
+					}
+				</div>
+			</div>
+
+
+			<div class="col-sm-12 col-md-7">
+				<div class="dataTables_paginate paging_simple_numbers" id="dataTable_paginate">
+					<ul class="pagination">
+						@{
+							int startPage = Math.Max(1, Model.CurrentPage - 3);
+							int endPage = Math.Min(Model.TotalPages, Model.CurrentPage + 3);
+						}
+
+						
+						<li class="paginate_button page-item previous @(Model.CurrentPage == 1 ? "disabled" : "")">
+							<a asp-action="Index"
+							   asp-route-page="@(Model.CurrentPage - 1)"
+							   asp-route-pageSize="@Model.PageSize"
+							   asp-route-keyword="@ViewData["CurrentFilter"]"
+							   class="page-link"
+							   aria-controls="dataTable"
+							   tabindex="0">Previous</a>
+						</li>
+
+						
+						@for (int i = startPage; i <= endPage; i++)
+						{
+							<li class="paginate_button page-item @(i == Model.CurrentPage ? "active" : "")">
+								<a asp-action="Index"
+								   asp-route-page="@i"
+								   asp-route-keyword="@ViewData["CurrentFilter"]"
+								   asp-route-pageSize="@Model.PageSize"
+								   class="page-link"
+								   aria-controls="dataTable"
+								   tabindex="0">@i</a>
+							</li>
+						}
+
+						
+						<li class="paginate_button page-item next @(Model.CurrentPage == Model.TotalPages ? "disabled" : "")">
+							<a asp-action="Index"
+							   asp-route-page="@(Model.CurrentPage + 1)"
+							   asp-route-pageSize="@Model.PageSize"
+							   asp-route-keyword="@ViewData["CurrentFilter"]"
+							   class="page-link"
+							   aria-controls="dataTable"
+							   tabindex="0">Next</a>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</div>
 	</div>
 </div>
 
 <script>
-	function updateStatus(checkbox) {
-		// Lấy ID của category và trạng thái mới
+		function updateStatus(checkbox) {
 		var categoryId = $(checkbox).data('id');
 		var newStatus = checkbox.checked ? 1 : 0;
 		var label = $(checkbox).next('label');
 
-		// Gửi yêu cầu AJAX đến server
 		$.ajax({
 			url: '/Admin/Category/UpdateStatus',
 			type: 'POST',
@@ -119,22 +184,23 @@
 				id: categoryId,
 				status: newStatus
 			},
-			success: function(response) {
-				if (response.success) {
-					// Cập nhật nhãn trạng thái
-					label.text(newStatus === 1 ? 'Active' : 'Inactive');
-				} else {
-					// Revert checkbox nếu cập nhật thất bại
-					checkbox.checked = !checkbox.checked;
-					alert(response.message || 'Failed to update status');
-				}
+			success: function() {
+				showAlert('Status updated successfully.');
+				label.text(newStatus === 1 ? 'Active' : 'Inactive');
 			},
 			error: function() {
-				// Revert checkbox nếu yêu cầu bị lỗi
+				
 				checkbox.checked = !checkbox.checked;
 				alert('Error updating status');
 			}
 		});
+	}
+		function showAlert(message) {
+		var alertDiv = $('#alert-div');
+		alertDiv.text(message).show();
+		setTimeout(function() {
+			alertDiv.hide();
+		}, 3000); 
 	}
 </script>
 
@@ -143,6 +209,19 @@
 		cursor: pointer;
 	}
 
+	#alert-div {
+		margin-top:80px;
+		position: fixed;
+		top: 10px;
+		right: 10px;
+		z-index: 9999;
+		padding: 10px;
+		background-color: #007bff;
+		color: #fff;
+		border-radius: 5px;
+		display: none; /* Ẩn thông báo khi bắt đầu */
+		transition: opacity 0.5s ease-in-out; /* Tạo hiệu ứng mờ dần */
+	}
 		
 	.table {
 		table-layout: fixed; /* Đặt kích thước cố định cho bảng */

@@ -1,6 +1,7 @@
 ﻿
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using WebShop.Areas.Admin.Repositories.Interface;
 using WebShop.Areas.Admin.ViewModels;
 using WebShop.Data;
@@ -8,7 +9,7 @@ using WebShop.Models;
 
 namespace WebShop.Areas.Admin.Repositories.Implement
 {
-    public class CateRepository : ICateRepository
+    public class CateRepository : IGenericRepository<Category>,ICateRepository
     {
         private readonly WebShopContext _context;
 
@@ -18,11 +19,7 @@ namespace WebShop.Areas.Admin.Repositories.Implement
         }
         public Category FindByName(string name)
         {
-            var category = _context.Categories.FirstOrDefault(c => c.Name == name);
-            if (category == null) { 
-                 return null;
-            }
-            return category;
+            return _context.Categories.FirstOrDefault(c => c.Name.ToLower() == name.ToLower());
         }
 
         public bool Add(Category category)
@@ -44,29 +41,34 @@ namespace WebShop.Areas.Admin.Repositories.Implement
             return _context.Categories.Count();
         }
 
-        public PaginatedViewModel<Category> GetPaginatedCategories(int page, int pageSize)
+        public PaginatedViewModel<Category> GetAll(string keyword, int page = 1, int pageSize = 10)
         {
-            page = Math.Max(1, page);
-            pageSize = Math.Max(1, pageSize);
-
-            int totalCategories = _context.Categories.Count();
+            var query = _context.Categories.AsNoTracking().AsQueryable();
 
             
-            int totalPages = (int)Math.Ceiling((double)totalCategories / pageSize);
-
+            if (!string.IsNullOrEmpty(keyword))
+            {
+                query = query.Where(c =>
+                    c.Name.ToLower().Contains(keyword.ToLower())
+                );
+            }
             
-            var categories = _context.Categories
-                .OrderBy(c => c.Id)
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .ToList();
+
+            int totalItems = query.Count();
+            int totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
+
+            var items = query
+               .Skip((page - 1) * pageSize)
+               .Take(pageSize)
+               .ToList();
+
             return new PaginatedViewModel<Category>
             {
-                Items = categories,
+                Items = items,
                 CurrentPage = page,
                 TotalPages = totalPages,
                 PageSize = pageSize,
-                TotalItems = totalCategories
+                TotalItems = totalItems
             };
         }
 
@@ -91,6 +93,14 @@ namespace WebShop.Areas.Admin.Repositories.Implement
             _context.Categories.Update(category);
             _context.SaveChanges();
             return true;
+        }
+
+        public void UpdateStatus(int id, int status)
+        {
+            var category = _context.Categories.FirstOrDefault(c =>c.Id==id);
+            category.Status = status;
+            _context.Update(category);
+            _context.SaveChanges();
         }
     }
 }

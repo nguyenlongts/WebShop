@@ -4,19 +4,9 @@ using WebShop.Models;
 
 namespace WebShop.Areas.Admin.Repositories.Interface
 {
-    public interface ICateRepository
+    public interface ICateRepository:IGenericRepository<Category>
     {
-        Category GetById(int id);
         Category FindByName(string name);
-
-        bool Add(Category category);
-
         int Count();
-        PaginatedViewModel<Category> GetPaginatedCategories(int page, int pageSize);
-
-        bool Delete(int id);
-
-        bool Update(Category category);
-
     }
 }

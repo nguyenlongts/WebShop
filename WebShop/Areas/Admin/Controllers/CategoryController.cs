@@ -18,9 +18,9 @@ namespace WebShop.Areas.Admin.Controllers
 			
             _cateRepository = cateRepository;
 		}
-		public IActionResult Index(int page = 1, int pageSize = 10)
+		public IActionResult Index(string keyword,int page = 1, int pageSize = 10)
 		{
-            PaginatedViewModel<Category> viewModel = _cateRepository.GetPaginatedCategories(page, pageSize);
+            PaginatedViewModel<Category> viewModel = _cateRepository.GetAll(keyword,page, pageSize);
 
             return View(viewModel);
         }
@@ -54,23 +54,8 @@ namespace WebShop.Areas.Admin.Controllers
         [HttpPost]
         public IActionResult UpdateStatus(int id, int status)
         {
-            try
-            {
-                var category = _cateRepository.GetById(id);
-                if (category == null)
-                {
-                    return Json(new { success = false, message = "Category not found" });
-                }
-
-                category.Status = status;
-                bool updateResult = _cateRepository.Update(category);
-
-                return Json(new { success = updateResult });
-            }
-            catch
-            {
-                return Json(new { success = false, message = "Error updating status" });
-            }
+            _cateRepository.UpdateStatus(id, status);
+            return RedirectToAction("Index");
         }
     }
 }
