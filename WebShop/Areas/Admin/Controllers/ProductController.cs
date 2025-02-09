@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Authorization;
 using WebShop.Areas.Admin.ViewModels;
 using System.Drawing.Printing;
 using Microsoft.EntityFrameworkCore;
+using WebShop.Areas.Admin.Repositories.Interface;
+using WebShop.Areas.Admin.Repositories.Implement;
 
 namespace WebShop.Areas.Admin.Controllers
 {
@@ -15,60 +17,29 @@ namespace WebShop.Areas.Admin.Controllers
 	public class ProductController : Controller
 	{
 
-		private readonly WebShopContext _context;
-		public ProductController(WebShopContext context)
+		private readonly IAdminProductRepository _productRepo;
+		private readonly IBrandRepository _brandRepo;
+		private readonly ICateRepository _cateRepo;
+		public ProductController(IAdminProductRepository productRepository,IBrandRepository brandRepository,ICateRepository cateRepository)
 		{
-			_context = context;
+			_brandRepo = brandRepository;
+			_productRepo = productRepository;	
+			_cateRepo = cateRepository;
 		}
 		[Route("/Admin/Products")]
 		[HttpGet]
 		public IActionResult Index(string keyword,int page=1, int PageSize = 10)
 		{
-            ViewData["CurrentFilter"] = keyword;
-            var query = _context.Products.AsNoTracking().AsQueryable();
-
-
-            if (!string.IsNullOrEmpty(keyword))
-            {
-                query = query.Where(p =>
-                    p.Name.ToLower().Contains(keyword.ToLower()) ||
-                    p.Description.ToLower().Contains(keyword.ToLower())
-                );
-            }	
-            query = query.OrderByDescending(p => p.DateCreate);
-            int totalProducts = query.Count();
-            int totalPages = (int)Math.Ceiling((double)totalProducts / PageSize);
-            var products = query
-               .Skip((page - 1) * PageSize)
-               .Take(PageSize)
-               .ToList();
-
-			var viewmodel = new PaginatedViewModel<Product>
-			{
-				Items = products,
-				CurrentPage = page,
-				TotalPages = totalPages,
-				PageSize = PageSize,
-				TotalItems = totalProducts
-			};
-
-            return View(viewmodel);
+			PaginatedViewModel<Product> model = _productRepo.GetAll(keyword, page, PageSize);
+            return View(model);
 		}
 		[HttpGet]
 		public IActionResult Create()
 		{
 			ProductForCreate obj = new ProductForCreate()
 			{
-				BrandList = _context.Brands.Select(b => new SelectListItem
-				{
-					Text = b.Name,
-					Value = b.Id.ToString()
-				}),
-				CategoryList = _context.Categories.Select(c => new SelectListItem
-				{
-					Text = c.Name,
-					Value = c.Id.ToString()
-				}),
+				BrandList = _brandRepo.GetBrandList(),
+				CategoryList = _cateRepo.GetCategoryList(),
 				Product = new Product
 				{
 					Category = new Category(),
@@ -86,16 +57,8 @@ namespace WebShop.Areas.Admin.Controllers
 				{
 					Console.WriteLine(error.ErrorMessage);
 				}
-				obj.BrandList = _context.Brands.Select(b => new SelectListItem
-				{
-					Text = b.Name,
-					Value = b.Id.ToString()
-				});
-				obj.CategoryList = _context.Categories.Select(c => new SelectListItem
-				{
-					Text = c.Name,
-					Value = c.Id.ToString()
-				});
+				obj.BrandList =_brandRepo.GetBrandList();
+				obj.CategoryList = _cateRepo.GetCategoryList();
 				return View(obj);
 
 			}
@@ -106,7 +69,7 @@ namespace WebShop.Areas.Admin.Controllers
 				Price = obj.Product.Price,
 				CategoryId = obj.Product.CategoryId,
 				BrandId = obj.Product.BrandId,
-				IsFeature=obj.IsFeatured
+				IsFeature=obj.Product.IsFeature
 			};
             if (obj.Image != null && obj.Image.Length > 0)
             {
@@ -120,37 +83,31 @@ namespace WebShop.Areas.Admin.Controllers
                
                 product.image = obj.Image.FileName; 
             }
-            _context.Products.Add(product);
-			_context.SaveChanges();
-			return RedirectToAction("Index");
+            var addResult =_productRepo.Add(product);
+            if (!addResult)
+            {
+                ViewData["ErrorMessage"] = "Category already exists";
+                return View(product);
+            }
+            return RedirectToAction("Index");
 		}
 
 		[HttpPost]
-		public IActionResult Delete(int id)
+        public IActionResult Delete(int id)
 		{
-			var product = _context.Products.FirstOrDefault(p => p.Id == id);
-			_context.Remove(product);
-			_context.SaveChanges();
-			return RedirectToAction("Index");	
-		}
+            bool deleteResult = _productRepo.Delete(id);
+            return RedirectToAction("Index");
+        }
 
         [HttpGet]
         public IActionResult Edit(int id)
         {
-            var product = _context.Products.FirstOrDefault(p=>p.Id==id); // Lấy thông tin sản phẩm
+            var product = _productRepo.GetById(id);
             if (product == null) return NotFound();
-			var BrandList = _context.Brands.Select(b => new SelectListItem
-			{
-				Text = b.Name,
-				Value = b.Id.ToString()
-			});
-			var CategoryList = _context.Categories.Select(c => new SelectListItem
-			{
-				Text = c.Name,
-				Value = c.Id.ToString()
-			});
+			var BrandList = _brandRepo.GetBrandList();
+			var CategoryList = _cateRepo.GetCategoryList();
             var model = new ProductForCreate
-            {
+            {   
                 Product = product,
                 CategoryList = CategoryList,
                 BrandList = BrandList
@@ -164,10 +121,9 @@ namespace WebShop.Areas.Admin.Controllers
         {
             if (ModelState.IsValid)
             {
-                var product = _context.Products.FirstOrDefault(p=>p.Id==model.Product.Id);
+                var product = _productRepo.GetById(model.Product.Id);
                 if (product == null) return NotFound();
 
-                // Cập nhật thông tin sản phẩm
                 product.Name = model.Product.Name;
                 product.Description = model.Product.Description;
                 product.Price = model.Product.Price;
@@ -177,14 +133,21 @@ namespace WebShop.Areas.Admin.Controllers
 
                 if (model.Image != null)
                 {
-                    // Xử lý hình ảnh mới nếu cần
+       
                     product.image = model.Image.ToString();
                 }
 
-                _context.Update(product);
+                _productRepo.Update(product);
                 return RedirectToAction("Index");
             }
             return View("Index");
         }
+		[HttpPost]
+        public IActionResult UpdateStatus(int id, int status)
+        {
+            _productRepo.UpdateStatus(id, status);
+            return RedirectToAction("Index");
+        }
+
     }
 }

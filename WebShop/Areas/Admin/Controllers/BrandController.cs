@@ -20,7 +20,7 @@ namespace WebShop.Areas.Admin.Controllers
 		public IActionResult Index(int page = 1, int PageSize = 10)
 		{
 			int totalBrands = _context.Brands.Count();
-			IEnumerable<Brand> brands = _context.Brands
+			List<Brand> brands = _context.Brands
 					.OrderBy(c => c.Id)
 				   .Skip((page - 1) * PageSize)
 				   .Take(PageSize)

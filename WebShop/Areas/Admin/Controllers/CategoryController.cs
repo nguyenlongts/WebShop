@@ -24,7 +24,12 @@ namespace WebShop.Areas.Admin.Controllers
 
             return View(viewModel);
         }
-
+        [HttpGet]
+        public IActionResult Edit(int id)
+        {
+            Category cate = _cateRepository.GetById(id);
+            return View(cate);
+        }
         public IActionResult Create()
         {
             return View();

@@ -37,12 +37,12 @@ namespace WebShop.Areas.Admin.Controllers
 				User user = _context.Users.FirstOrDefault(u => u.UserName == model.UserName && u.Password==model.Password );
 				if (user == null )
 				{
-					ModelState.AddModelError("Error", "Thông tin đăng nhập chưa chính xác hoặc không có quyền truy cập.");
+					ModelState.AddModelError("Error", "Thông tin đăng nhập chưa chính xác.");
 					return View(model);
 				} 
 				if(user.Role != UserRole.Admin)
 				{
-						ModelState.AddModelError("Error", "Thông tin đăng nhập không có quyền truy cập.");
+						ModelState.AddModelError("Error", "Thông tin đăng nhập chưa chính xác.");
 						return View(model);
 				}
 
@@ -51,7 +51,7 @@ namespace WebShop.Areas.Admin.Controllers
 				new Claim(ClaimTypes.Name, user.UserName),
 				new Claim(ClaimTypes.Email, user.Email),
 				new Claim("FullName", user.FullName),
-				new Claim(ClaimTypes.Role, user.Role.ToString()),
+				new Claim(ClaimTypes.Role, user.Role.ToString())
 			};
 
 				var claimsIdentity = new ClaimsIdentity(claims, "AdminCookie");
