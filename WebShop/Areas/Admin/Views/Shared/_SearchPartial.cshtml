@@ -1,0 +1,15 @@
+﻿<div class="row pb-3">
+    <div class="col-6">
+        <form asp-controller="@ViewData["Controller"]" asp-action="Index" method="get" class="d-flex">
+            <input type="text" name="keyword" class="form-control me-2 search-input" placeholder="Search @ViewData["Entity"]..." value="@ViewData["CurrentFilter"]" />
+            <button type="submit" class="btn btn-search">
+                <i class="bi bi-search">Find</i>
+            </button>
+        </form>
+    </div>
+    <div class="col-6 text-end">
+        <a asp-action="Create" asp-controller="@ViewData["Controller"]" class="btn btn-create">
+            <i class="bi bi-plus-circle"></i> Create New @ViewData["Entity"]
+        </a>
+    </div>
+</div>
