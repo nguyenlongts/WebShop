@@ -1,6 +1,7 @@
 ﻿
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using WebShop.Areas.Admin.Repositories.Interface;
 using WebShop.Areas.Admin.ViewModels;
@@ -9,17 +10,13 @@ using WebShop.Models;
 
 namespace WebShop.Areas.Admin.Repositories.Implement
 {
-    public class CateRepository : IGenericRepository<Category>,ICateRepository
+    public class CateRepository : ICateRepository
     {
         private readonly WebShopContext _context;
 
         public CateRepository(WebShopContext context)
         {
             _context = context;
-        }
-        public Category FindByName(string name)
-        {
-            return _context.Categories.FirstOrDefault(c => c.Name.ToLower() == name.ToLower());
         }
 
         public bool Add(Category category)
@@ -36,16 +33,10 @@ namespace WebShop.Areas.Admin.Repositories.Implement
             return true;
         }
 
-        public int Count()
-        {
-            return _context.Categories.Count();
-        }
-
         public PaginatedViewModel<Category> GetAll(string keyword, int page = 1, int pageSize = 10)
         {
             var query = _context.Categories.AsNoTracking().AsQueryable();
 
-            
             if (!string.IsNullOrEmpty(keyword))
             {
                 query = query.Where(c =>
@@ -85,7 +76,7 @@ namespace WebShop.Areas.Admin.Repositories.Implement
 
         public Category GetById(int id)
         {
-            return _context.Categories.Find(id);
+            return _context.Categories.FirstOrDefault(c=>c.Id==id);
         }
 
         public bool Update(Category category)
@@ -101,6 +92,16 @@ namespace WebShop.Areas.Admin.Repositories.Implement
             category.Status = status;
             _context.Update(category);
             _context.SaveChanges();
+        }
+
+        public IEnumerable<SelectListItem> GetCategoryList()
+        {
+            var CategoryList = _context.Categories.Select(b => new SelectListItem
+            {
+                Text = b.Name,
+                Value = b.Id.ToString()
+            });
+            return CategoryList;
         }
     }
 }
