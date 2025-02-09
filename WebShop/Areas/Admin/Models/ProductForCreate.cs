@@ -12,8 +12,7 @@ namespace WebShop.Areas.Admin.Models
         [ValidateNever]
         public IEnumerable<SelectListItem> BrandList { get; set; }
         [Display(Name = "Image")]
-        public IFormFile Image { get; set; }
+        public IFormFile? Image { get; set; }
 
-        public bool IsFeatured { get; set; }
     }
 }
