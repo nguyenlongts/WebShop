@@ -1,32 +1,13 @@
 ﻿@model WebShop.Areas.Admin.ViewModels.PaginatedViewModel<Product>
-
-
-<div class="card-header bg-secondary bg-gradient ml-0 py-3">
-	<div class="row">
-		<div class="col-12 text-center">
-			<h2 class="text-white py-2">List Products</h2>
-		</div>
-	</div>
-</div>
+@{
+	ViewData["Title"] = "List Product";
+	ViewData["Entity"] = "Product";
+	ViewData["Controller"] = "Product";
+}
+<div id="alert-div" class="alert alert-info" style="display:none;"></div>
+@await Html.PartialAsync("_HeaderPartial")
 <div class="card-body">
-	<div class="row pb-3">
-		<div class="row pb-3">
-			<div class="col-6">
-				<form asp-controller="Product" asp-action="Index" method="get" class="d-flex">
-					<input type="text" name="keyword" class="form-control me-2 search-input" placeholder="Search products..." value="@ViewData["CurrentFilter"]" />
-					<button type="submit" class="btn btn-search">
-						<i class="bi bi-search">Find</i>
-					</button>
-				</form>
-			</div>
-			<div class="col-6 text-end">
-				<a asp-action="Create" asp-controller="Product" class="btn btn-create">
-					<i class="bi bi-plus-circle"></i> Create New Product
-				</a>
-			</div>
-		</div>
-
-	</div>
+	@await Html.PartialAsync("_SearchPartial")
 </div>
 <div class="card shadow mb-4">
 	<div class="card-header py-3">
@@ -37,26 +18,10 @@
 			<div id="dataTable_wrapper" class="dataTables_wrapper dt-bootstrap4">
 				<div class="row">
 					<div class="col-sm-12 col-md-6">
-						<div class="dataTables_length" id="dataTable_length">
-							<form method="get" asp-action="Index" class="form-inline">
-								<label class="mr-2">
-									Show
-									<input type="number"
-										   name="pageSize"
-										   value="@Model.PageSize"
-										   min="1"
-										   max="500"
-										   class="form-control form-control-sm ml-1 mr-1"
-										   style="width: 80px;"
-										   onchange="this.form.submit()" />
-									entries
-								</label>
-								<input type="hidden" name="page" value="1" />
-							</form>
-						</div>
+						@await Html.PartialAsync("_NumOfRecordsPartial")
 					</div>
-				
-				</div><div class="row">
+				</div>
+				<div class="row">
 					<div class="col-sm-12">
 						<table class="table table-bordered dataTable" id="dataTable" width="100%" cellspacing="0" role="grid" aria-describedby="dataTable_info" style="width: 100%;">
 							<thead>
@@ -64,14 +29,26 @@
 									<th class="sorting sorting_asc" tabindex="0" aria-controls="dataTable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 33%;background-color:black;color:white">Name</th>
 									<th class="sorting" tabindex="0" aria-controls="dataTable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 33%;background-color:black;color:white">Status</th>
 									<th class="sorting" tabindex="0" aria-controls="dataTable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 33%;background-color:black;color:white">Actions</th>
+								</tr>
 							</thead>
 							<tbody>
-								@foreach (Product item in Model.Items)
+								@foreach (var item in Model.Items)
 								{
 									<tr>
 										<td>@item.Name</td>
-
-										<td>@item.Status</td>
+										<td>
+											<div class="form-check form-switch">
+												<input class="form-check-input status-toggle"
+													   type="checkbox"
+													   role="switch"
+													   data-id="@item.Id"
+												@(item.Status == 1 ? "checked" : "")
+													   onchange="updateStatus(this)">
+												<label class="form-check-label">
+													@(item.Status == 1 ? "Active" : "Inactive")
+												</label>
+											</div>
+										</td>
 										<td>
 											<div class="btn-group" role="group">
 												<a asp-controller="Product" asp-action="Edit" asp-route-id="@item.Id"
@@ -81,7 +58,7 @@
 												<form asp-controller="Product" asp-action="Delete" asp-route-id="@item.Id"
 													  method="post" class="d-inline">
 													<button type="submit" class="btn btn-danger btn-sm ms-1 btn-lg"
-															onclick="return confirm('Are you sure you want to delete this category?');">
+															onclick="return confirm('Are you sure you want to delete this Product?');">
 														<i class="bi bi-trash-fill"></i> Delete
 													</button>
 												</form>
@@ -92,76 +69,83 @@
 							</tbody>
 						</table>
 					</div>
-					<div class="row">
-
-						<div class="col-sm-12 col-md-5">
-							<div class="dataTables_info" id="dataTable_info" role="status" aria-live="polite">
-								@if (Model.TotalItems > 0)
-								{
-									<span>Showing @(Model.Items.Count()) of @Model.TotalItems entries</span>
-								}
-								else
-								{
-									<span>No entries found</span>
-								}
-							</div>
-						</div>
-
-
-						<div class="col-sm-12 col-md-7">
-							<div class="dataTables_paginate paging_simple_numbers" id="dataTable_paginate">
-								<ul class="pagination">
-									@{
-										int startPage = Math.Max(1, Model.CurrentPage - 3);
-										int endPage = Math.Min(Model.TotalPages, Model.CurrentPage + 3);
-									}
-
-									<!-- Previous Button -->
-									<li class="paginate_button page-item previous @(Model.CurrentPage == 1 ? "disabled" : "")">
-										<a asp-action="Index"
-										   asp-route-page="@(Model.CurrentPage - 1)"
-										   asp-route-pageSize="@Model.PageSize"
-										   asp-route-keyword="@ViewData["CurrentFilter"]"
-										   class="page-link"
-										   aria-controls="dataTable"
-										   tabindex="0">Previous</a>
-									</li>
-
-									<!-- Page Numbers -->
-									@for (int i = startPage; i <= endPage; i++)
-									{
-										<li class="paginate_button page-item @(i == Model.CurrentPage ? "active" : "")">
-											<a asp-action="Index"
-											   asp-route-page="@i"
-											   asp-route-keyword="@ViewData["CurrentFilter"]"
-											   asp-route-pageSize="@Model.PageSize"
-											   class="page-link"
-											   aria-controls="dataTable"
-											   tabindex="0">@i</a>
-										</li>
-									}
-
-									<!-- Next Button -->
-									<li class="paginate_button page-item next @(Model.CurrentPage == Model.TotalPages ? "disabled" : "")">
-										<a asp-action="Index"
-										   asp-route-page="@(Model.CurrentPage + 1)"
-										   asp-route-pageSize="@Model.PageSize"
-										   asp-route-keyword="@ViewData["CurrentFilter"]"
-										   class="page-link"
-										   aria-controls="dataTable"
-										   tabindex="0">Next</a>
-									</li>
-								</ul>
-							</div>
-						</div>
-					</div>
+					@await Html.PartialAsync("_PaginationPartial")
 				</div>
 			</div>
 		</div>
 	</div>
 </div>
+<script>
+		function updateStatus(checkbox) {
+		var ProductId = $(checkbox).data('id');
+		var newStatus = checkbox.checked ? 1 : 0;
+		var label = $(checkbox).next('label');
+
+		$.ajax({
+			url: '/Admin/Product/UpdateStatus',
+			type: 'POST',
+			data: {
+				id: ProductId,
+				status: newStatus
+			},
+			success: function() {
+				showAlert('Status updated successfully.');
+				label.text(newStatus === 1 ? 'Active' : 'Inactive');
+			},
+			error: function() {
+
+				checkbox.checked = !checkbox.checked;
+				alert('Error updating status');
+			}
+		});
+	}
+		function showAlert(message) {
+		var alertDiv = $('#alert-div');
+		alertDiv.text(message).show();
+		setTimeout(function() {
+			alertDiv.hide();
+		}, 3000);
+	}
+</script>
+
 <style>
-	/* Previous styles remain the same */
+	.form-check-input.status-toggle {
+		cursor: pointer;
+	}
+
+	#alert-div {
+		margin-top: 80px;
+		position: fixed;
+		top: 10px;
+		right: 10px;
+		z-index: 9999;
+		padding: 10px;
+		background-color: #007bff;
+		color: #fff;
+		border-radius: 5px;
+		display: none; /* Ẩn thông báo khi bắt đầu */
+		transition: opacity 0.5s ease-in-out; /* Tạo hiệu ứng mờ dần */
+	}
+
+	.table {
+		table-layout: fixed; /* Đặt kích thước cố định cho bảng */
+		width: 100%; /* Đảm bảo bảng chiếm hết không gian */
+	}
+
+	.btn-primary {
+		width: 100px;
+		color: #fff;
+		background-color: #192E2F;
+		border-color: #192E2F;
+	}
+
+	.btn-danger {
+		width: 100px;
+		color: #fff;
+		background-color: #CA1929;
+		border-color: #CA1929;
+	}
+
 	.pagination .page-link {
 		color: #192E2F;
 	}
@@ -214,4 +198,10 @@
 		.btn-create i {
 			margin-right: 5px;
 		}
+
+	.table-responsive th:nth-child(1),
+	.table-responsive td:nth-child(1) {
+		max-width: 200px; /* Đặt chiều rộng tối đa cho cột Name */
+		word-wrap: break-word; /* Ngắt từ nếu dài quá */
+	}
 </style>

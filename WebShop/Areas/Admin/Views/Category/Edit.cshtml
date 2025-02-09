@@ -1,5 +1,44 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model WebShop.Models.Category
+
 @{
+    ViewData["Title"] = "Edit Category";
+}
+
+<div class="card-header bg-secondary bg-gradient ml-0 py-3">
+    <div class="row">
+        <div class="col-12 text-center">
+            <h2 class="text-white py-2">Edit Category</h2>
+        </div>
+    </div>
+</div>
+
+<div style="max-width: 600px; margin: 50px auto; font-family: Arial, sans-serif; background-color: #fff; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
+    <div style="background-color: #007bff; color: #fff; padding: 15px; border-top-left-radius: 10px; border-top-right-radius: 10px; text-align: center;">
+        <h3 style="margin: 0; font-size: 1.5rem; text-transform: uppercase;">Edit Category</h3>
+    </div>
+    <div style="padding: 20px;">
+        <form asp-action="Edit" method="post">
+            <div style="margin-bottom: 15px;">
+                <label asp-for="Id" style="font-weight: bold; display: block; margin-bottom: 5px;">ID</label>
+                <input asp-for="Id" style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 5px;" readonly />
+            </div>
+            <div style="margin-bottom: 15px;">
+                <label asp-for="Name" style="font-weight: bold; display: block; margin-bottom: 5px;">Name</label>
+                <input asp-for="Name" style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 5px;" placeholder="Enter category name" />
+                <span asp-validation-for="Name" style="color: red; font-size: 0.9rem;"></span>
+            </div>
+            
+            <div style="display: flex; justify-content: space-between;">
+                <button type="submit" style="padding: 10px 20px; background-color: #007bff; color: #fff; border: none; border-radius: 5px; font-weight: bold; cursor: pointer;">
+                    Save
+                </button>
+                <a asp-action="Index" style="padding: 10px 20px; background-color: #6c757d; color: #fff; text-decoration: none; border-radius: 5px; font-weight: bold; text-align: center;">
+                    Back
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
 }
