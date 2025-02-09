@@ -1,0 +1,17 @@
+﻿<div class="dataTables_length" id="dataTable_length">
+	<form method="get" asp-action="Index" class="form-inline">
+		<label class="mr-2">
+			Show
+			<input type="number"
+				   name="pageSize"
+				   value="@Model.PageSize"
+				   min="1"
+				   max="20"
+				   class="form-control form-control-sm ml-1 mr-1"
+				   style="width: 80px;"
+				   onchange="this.form.submit()" />
+			entries
+		</label>
+		<input type="hidden" name="page" value="1" />
+	</form>
+</div>
